@@ -36,7 +36,8 @@
 \tcbset{frame empty}
 
 \newmintinline[lean]{lean4}{bgcolor={},ignorelexererrors=true}
-\newminted[leancode]{lean4}{bgcolor={},ignorelexererrors=true,fontsize=\footnotesize,autogobble}
+\newminted[leancode]{lean4}{bgcolor={},ignorelexererrors=true,fontsize=\footnotesize,autogobble,%
+  extrakeywords={aesop cases add aesop? intro simp simp_all only split}}
 \BeforeBeginEnvironment{leancode}{\begin{tcolorbox}}
 \AfterEndEnvironment{leancode}{\end{tcolorbox}}
 \usemintedstyle{tango}
