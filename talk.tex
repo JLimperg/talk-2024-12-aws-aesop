@@ -74,6 +74,12 @@
 \newcommand{\mv}[1]{\ensuremath{\mathit{?#1}}}
 \newcommand{\rulename}[1]{\textrm{#1}}
 \newcommand{\rulelabel}[1]{\quad \text{\rulename{#1}}}
+\newcommand{\Expr}{\ensuremath{\mathbb{E}}}
+\newcommand{\Hyps}{\ensuremath{\mathbb{H}}}
+\newcommand{\Matches}{\ensuremath{\mathbb{M}}}
+\newcommand{\Slots}{\ensuremath{\mathbb{S}}}
+\newcommand{\Vars}{\ensuremath{\mathbb{V}}}
+\newcommand{\Pow}[1]{\ensuremath{\mathcal{P}(#1)}}
 \newenvironment{rapppic}{\begin{tikzpicture}[outer sep=auto, level distance=2em]}{\end{tikzpicture}}
 \newenvironment{rapp}{%
   \begin{tcolorbox}
@@ -96,7 +102,55 @@
 \end{frame}
 
 \begin{frame}
-  \tableofcontents
+  \frametitle{Overview: Tree Search}
+
+  Aesop is a proof search tactic for Lean 4.
+
+  It is based on tree search, similar to Coq's and Isabelle's \texttt{auto}.
+
+  Proof rules are arbitrary user-specified tactics.
+
+  % TODO example
+\end{frame}
+
+\begin{frame}
+  \frametitle{Overview: Simplifier}
+
+  Aesop integrates Lean's simplifier as a built-in rule.
+
+  % TODO example
+\end{frame}
+
+\begin{frame}
+  \frametitle{Overview: Built-In Rules}
+
+  Aesop provides built-in rules for basic logical reasoning, case splitting, \dots
+
+  % TODO example
+\end{frame}
+
+\begin{frame}
+  \frametitle{Overview: Best-First Search with Metavariables}
+
+  Aesop supports best-first search with metavariables.
+
+  % TODO example
+\end{frame}
+
+\begin{frame}
+  \frametitle{Overview: Proof Script Generation}
+
+  Aesop can generate a tactic script for the proof it found.
+
+  % TODO example
+\end{frame}
+
+\begin{frame}
+  \frametitle{Overview: Forward Reasoning}
+
+  Aesop will soon have efficient forward rules.
+
+  % TODO example
 \end{frame}
 
 \AtBeginSection{
@@ -107,16 +161,6 @@
 }
 
 \section{Search Algorithm}
-
-\begin{frame}
-  \frametitle{Rules}
-
-  A \emph{rule} is an arbitrary Lean tactic.
-
-  Aesop provides convenient syntax (\emph{rule builders}) for creating rules from theorems.
-
-  Aesop always operates with a user-defined \emph{rule set}.
-\end{frame}
 
 \begin{frame}[fragile]
   \frametitle{Basic Tree Search}
@@ -196,20 +240,6 @@
 \end{frame}
 
 \begin{frame}
-  \frametitle{When Is A Rule Safe?}
-
-  A rule $R$ is \emph{logically safe} if it preserves provability:
-
-  For each goal $G$, if $G$ is provable and $R$, applied to $G$, generates subgoals $G₁, \dots, Gₙ$, then $G₁, \dots, Gₙ$ must still be provable.
-
-  \pause
-
-  A rule $R$ is \emph{relatively safe} if it preserves provability relative to a rule set $S$:
-
-  If a goal $G$ is provable with rules from $S$ and $R$, applied to $G$, generates subgoals $G₁, \dots, Gₙ$, then $G₁, \dots, Gₙ$ must still be provable with rules from $S$.
-\end{frame}
-
-\begin{frame}
   \frametitle{Normalisation Rules}
 
   \begin{itemize}[<+->]
@@ -259,418 +289,14 @@
   \end{center}
 \end{frame}
 
-\section{Registering Rules}
-
-\begin{frame}[fragile]
-  \frametitle{Registering Rules}
-
-  \begin{block}{Globally}
-    \begin{leancode}
-      @[aesop unsafe 100%]
-      theorem And.intro : A → B → A ∧ B
-    \end{leancode}
-  \end{block}
-
-  \pause
-
-  \begin{block}{Locally}
-    \begin{leancode}
-      aesop (add 100% And.intro)
-    \end{leancode}
-  \end{block}
-
-  \pause
-
-  \begin{block}{Safe rules}
-    \begin{leancode}
-      @[aesop safe 10]
-      theorem And.intro : A → B → A ∧ B
-    \end{leancode}
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Rule Builders}
-
-  A \emph{rule builder} turns a declaration into an Aesop rule.
-
-  In the examples so far, we have implicitly used a default builder.
-
-  Aesop currently provides 7 rule builders.
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Apply Builder}
-
-  \begin{leancode}
-    @[aesop safe apply 10]
-    theorem And.intro : A → B → A ∧ B
-  \end{leancode}
-
-  \pause
-
-  Builds a rule that runs \lean{apply And.intro}.
-
-  \begin{rapp}
-    \node {$Γ ⊢ \orange{A ∧ B}$}
-      child {node {$Γ ⊢ \orange{A}$}}
-      child {node {$Γ ⊢ \orange{B}$}};
-  \end{rapp}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Constructors Builder}
-
-  \begin{leancode}
-    @[aesop 50% constructors]
-    inductive Or (A B : Prop) where
-      | left  : A → Or A B
-      | right : B → Or A B
-  \end{leancode}
-
-  Equivalent to one \lean{apply} rule for each constructor.
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Cases Builder}
-
-  \begin{leancode}
-    @[aesop safe cases]
-    inductive Or (A B : Prop) where
-      | left  : A → Or A B
-      | right : B → Or A B
-  \end{leancode}
-
-  Builds a rule that runs \lean{cases} on any hypothesis of type \lean{Or A B}.
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Forward Builder}
-
-  \begin{leancode}
-    @[aesop safe forward]
-    theorem pos_of_min_pos : ∀ {x y : ℕ},
-      0 < min x y →
-      0 < x ∧ 0 < y
-  \end{leancode}
-
-  \begin{rapp}
-    \node {$Γ,\, x\, y : ℕ,\, h : 0 < \mathrm{min}~x~y ⊢ T$}
-      child {node {$Γ,\, x\, y : ℕ,\, h : 0 < \mathrm{min}~x~y,\, \orange{h₁ : 0 < x ∧ 0 < y} ⊢ T$}};
-  \end{rapp}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Destruct Builder}
-
-  \begin{leancode}
-    @[aesop safe destruct]
-    theorem pos_of_min_pos : ∀ {x y : ℕ},
-      0 < min x y →
-      0 < x ∧ 0 < y
-  \end{leancode}
-
-  \begin{rapp}
-    \node {$Γ,\, x\, y : ℕ,\, \orange{h : 0 < \mathrm{min}~x~y} ⊢ T$}
-      child {node {$Γ,\, x\, y : ℕ,\, \orange{h : 0 < x ∧ 0 < y} ⊢ T$}};
-  \end{rapp}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Simp Builder}
-
-  Aesop runs \lean{simp_all} as a built-in normalisation rule with penalty 0.
-
-  This \lean{simp_all} call uses the default \lean{simp} set plus an
-  Aesop-specific \lean{simp} set.
-
-  The \lean{simp} builder adds an equation or proposition to this Aesop-specific
-  set.
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Tactic Builder}
-
-  \begin{leancode}
-    aesop (add safe (by norm_num; done))
-  \end{leancode}
-
-  \pause
-
-  \begin{leancode}
-    add_aesop_rules safe (by norm_num; done)
-  \end{leancode}
-
-  \pause
-  \bigskip
-
-  \begin{block}{Requirement}
-    If the tactic does not change the goal, it should fail.
-  \end{block}
-\end{frame}
-
 \section{Built-In Rules}
 
-\begin{frame}
-  \frametitle{Logic: ∧}
+% TODO
 
-  \begin{block}{∧-introduction (safe, penalty 101)}
-    \begin{rapp}
-      \node {$Γ ⊢ \orange{A ∧ B}$}
-        child {node {$Γ ⊢ \orange{A}$}}
-        child {node {$Γ ⊢ \orange{B}$}};
-    \end{rapp}
-  \end{block}
-
-  \pause
-
-  \begin{block}{∧-elimination (norm, penalty 0)}
-    \begin{rapp}
-      \node {$Γ,\, \orange{h : A ∧ B} ⊢ T$}
-        child {node {$Γ,\, \orange{h₁ : A,\, h₂ : B} ⊢ T$}};
-    \end{rapp}
-  \end{block}
-
-  \pause
-
-  Similar for \lean{Prod}, \lean{PProd}, \lean{MProd}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Logic: ∨}
-
-  \begin{block}{∨-introduction (unsafe, success probability 50\%)}
-    \begin{tcolorbox}
-      \begin{columns}
-        \begin{column}{0.5\textwidth}
-          \centering
-          \begin{rapppic}
-            \node {$Γ ⊢ \orange{A ∨ B}$}
-              child {node {$Γ ⊢ \orange{A}$}};
-          \end{rapppic}
-        \end{column}
-
-        \begin{column}{0.5\textwidth}
-          \centering
-          \begin{rapppic}
-            \node {$Γ ⊢ \orange{A ∨ B}$}
-              child {node {$Γ ⊢ \orange{B}$}};
-          \end{rapppic}
-        \end{column}
-      \end{columns}
-    \end{tcolorbox}
-  \end{block}
-
-  \pause
-
-  \begin{block}{∨-elimination (safe, penalty 100)}
-    \begin{rapp}
-      \node {$Γ,\, \orange{h : A ∨ B} ⊢ T$}
-        child {node[xshift=-8mm] {$Γ,\, \orange{h : A} ⊢ T$}}
-        child {node[xshift=8mm]  {$Γ,\, \orange{h : B} ⊢ T$}};
-    \end{rapp}
-  \end{block}
-
-  \pause
-
-  Similar for \lean{Sum}, \lean{PSum}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Logic: ∀ and →}
-
-  \begin{block}{∀-introduction (norm, penalty -100)}
-    Run the \lean{intros} tactic
-  \end{block}
-
-  \pause
-
-  \begin{block}{∀-elimination (unsafe, success probability 75\%)}
-    \begin{rapp}
-      \node {$Γ,\, h : ∀ (x₁ : A₁) \dots (xₙ : Aₙ),\, B ⊢ \orange{B}$}
-        child {node {$Γ,\, h ⊢ \orange{A₁}$}}
-        child {node {$\dots$}}
-        child {node {$Γ,\, h ⊢ \orange{Aₙ}$}};
-    \end{rapp}
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Logic: ∃}
-
-  \begin{block}{∃-introduction (unsafe, success probability 30\%)}
-    \begin{rapp}
-      \node {$Γ ⊢ \orange{∃ x,\, P~x}$}
-        child {node {$Γ ⊢ \orange{P~\mathit{?x}}$}};
-    \end{rapp}
-  \end{block}
-
-  \pause
-
-  \begin{block}{∃-elimination (norm, penalty 0)}
-    \begin{rapp}
-      \node {$Γ,\, \orange{h : ∃ x : A,\, P~x} ⊢ T$}
-        child {node {$Γ,\, \orange{x : A,\, h : P~x} ⊢ T$}};
-    \end{rapp}
-  \end{block}
-
-  \pause
-
-  Similar for \lean{Subtype}, \lean{Sigma}, \lean{PSigma}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Logic: $\iff$}
-
-  \begin{block}{$\iff$-introduction (safe, penalty 100)}
-    \begin{rapp}
-      \node {$Γ ⊢ \orange{A \iff B}$}
-        child {node[xshift=-8mm] {$Γ ⊢ \orange{A → B}$}}
-        child {node[xshift=8mm]  {$Γ ⊢ \orange{B → A}$}};
-    \end{rapp}
-  \end{block}
-
-  \pause
-
-  \begin{block}{$\iff$ hypotheses}
-    A hypothesis of type $A \iff B$ is treated as the equation $A = B$ by the simplifier and the substitution rule.
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Logic: ⊤}
-
-  \begin{block}{$⊤$-introduction\footnote{$⊤$ = \lean{True}} (safe, penalty 0)}
-    \begin{rapp}
-      \node {$Γ ⊢ ⊤$}
-        child {node {$\checkmark$}};
-    \end{rapp}
-  \end{block}
-
-  \pause
-
-  Similar for \lean{Unit}, \lean{PUnit}.
-\end{frame}
-
-\begin{frame}
-  \frametitle{Logic: ⊥}
-
-  The simplifier already solves goals with an assumption $h : ⊥$.\footnote{$⊥$ = \lean{False}}
-
-  \pause
-
-  We add destruct rules to conclude $⊥$ from \lean{Empty} and \lean{PEmpty}.
-\end{frame}
-
-\begin{frame}
-  \frametitle{Logic: ¬}
-
-  \begin{block}{$¬$-introduction}
-    \begin{rapp}
-      \node {$Γ ⊢ \orange{¬ A}$}
-        child {node {$Γ,\, \orange{h : A} ⊢ \orange{⊥}$}};
-    \end{rapp}
-  \end{block}
-
-  \pause
-
-  \begin{block}{Negated hypotheses}
-    Given a hypothesis of type $¬ A$, the simplifier replaces $A$ with $⊥$ everywhere in the goal.
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Logic: Simplifier}
-
-  The simplifier performs limited logical reasoning.
-  If $A$ and $B$ are propositions:
-
-  \pause
-
-  \begin{itemize}[<+->]
-    \item With assumption $h : A$: rewrite $A = ⊤$
-    \item With assumption $h : ¬ A$: rewrite $A = ⊥$
-    \item $(⊤ ∧ ⊥) = ⊥$
-    \item $(⊤ ∧ ⊤) = ⊤$
-    \item $(⊤ → A) = A$
-    \item etc.
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Logic: Completeness}
-
-  In practice, these rules solve most \enquote*{purely logical} goals.
-
-  However, they are incomplete for first-order and even propositional logic.
-\end{frame}
-
-\begin{frame}
-  \frametitle{Equality}
-
-  \begin{block}{Simplifier (norm, penalty 0)}
-    Run the \lean{simp_all} tactic as described previously
-  \end{block}
-
-  \pause
-
-  \begin{block}{Reflexivity (safe, penalty 0)}
-    Run the \lean{rfl} tactic
-  \end{block}
-
-  \pause
-
-  \begin{block}{Substitution (norm, penalty -50)}
-    Run the \lean{subst} tactic on any hypothesis of type \lean{x = t} or \lean{t = x} where \lean{x} is a variable.
-
-    This substitutes \lean{t} for \lean{x} everywhere in the goal and removes the now-redundant hypothesis.
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Case Splitting}
-
-  \begin{block}{Split target (safe, penalty 100)}
-    Runs the \lean{split} tactic.
-
-    This tactic looks for \lean{if-then-else} and \lean{match} expressions in the target and performs case splits on their discriminees.
-  \end{block}
-
-  \pause
-
-  \begin{block}{Split hypotheses (safe, penalty 1000)}
-    Ditto, but we look for case splits in hypotheses.
-  \end{block}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Extensionality}
-
-  \begin{block}{Extensionality (unsafe, success probability 80\%)}
-    Run the \lean{ext} tactic.
-
-    This exhaustively applies extensionality lemmas to an equational goal. E.g.:
-
-    \begin{rapp}
-      \node {$Γ,\, p\, q : A × B ⊢ \orange{p = q}$}
-        child {node {$Γ,\, p\, q : A × B ⊢ \orange{p.1 = q.1 ∧ p.2 = q.2}$}};
-    \end{rapp}
-  \end{block}
-\end{frame}
-
-\section{Debugging}
-
-\begin{frame}
-  \frametitle{Leftover Goals}
-
-  When Aesop fails to solve a goal, it reports the goals that remain
-  after safe rules have been exhaustively applied.
-
-  This helps to check whether the safe rules do what you think they should.
-\end{frame}
+\section{Proof Script Generation}
 
 \begin{frame}[fragile]
-  \frametitle{Proof Generation}
+  \frametitle{Proof Script Generation}
 
   \begin{leancode}
     theorem last_cons {a : α} {l : List α} (h : l ≠ nil) :
@@ -694,73 +320,6 @@
   One click replaces \lean{aesop?} with the generated proof.
 \end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{Tracing}
-
-  \begin{leancode}
-    set_option trace.aesop true in
-    aesop
-  \end{leancode}
-
-  \pause
-
-  \begin{itemize}[<+->]
-    \item Lists the rules that Aesop (tried to) run and the resulting goals
-    \item For other trace options see autocompletion for \texttt{trace.aesop.}
-  \end{itemize}
-\end{frame}
-
-\section{Miscellaneous Features}
-
-\begin{frame}[fragile]
-  \frametitle{Custom Rule Sets}
-
-  \begin{leancode}
-    -- RuleSet.lean
-
-    -- Must be in a different file for technical reasons
-    declare_aesop_rule_sets [Foo]
-  \end{leancode}
-
-  \pause
-
-  \begin{leancode}
-    import RuleSet
-
-    @[aesop 100% (rule_sets [Foo])]
-    theorem foo
-  \end{leancode}
-
-  \pause
-
-  Used for domain-specific automation, e.g. \texttt{continuity}, \texttt{measurability}, \dots
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Metavariables}
-
-  Aesop supports rules that generate metavariables:
-
-  \begin{leancode}
-    example {a b c d : Nat} (h₁ : a < b)
-        (h₂ : a < c) (h₃ : c < d) : a < d := by
-      apply Nat.lt_trans
-      -- ⊢ a < ?x
-      -- ⊢ ?x < d
-
-    example {a b c d : Nat} (h₁ : a < b)
-        (h₂ : a < c) (h₃ : c < d) : a < d := by
-      aesop (add 1% Nat.lt_trans)
-  \end{leancode}
-
-  \pause
-
-  \begin{itemize}[<+->]
-    \item \good{} Aesop's search algorithm should be complete even in the presence of metavariables
-    \item \bad{} This is very expensive
-  \end{itemize}
-\end{frame}
-
 \section{Applications, Shortcomings and Work In Progress}
 
 \begin{frame}
@@ -770,19 +329,270 @@
     \item General-purpose automation
     \item Domain-specific solvers: \lean{continuity}, \lean{measurability}, \lean{aesop_cat}, \dots
     \item Domain-specific \enquote*{goal preprocessors} with \lean{aesop?}
-    \item Tree search backend for LLMs: \fullcite{song2023}
+    \item Tree search backend for LLMs: \fullcite{song2023} % TODO cite ABEL
   \end{itemize}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Shortcomings and Work In Progress}
+  \frametitle{Shortcomings}
 
   \begin{itemize}[<+->]
     \item The built-in logical rules do not deal well with all-quantified hypotheses and sometimes negation
     \item The default rule set is currently missing many rules
     \item Repeated calls to \lean{simp} during normalisation are bad for performance
-    \item Nontrivial sets of forward rules are very slow (WIP)
   \end{itemize}
+\end{frame}
+
+\section{Efficient Forward Reasoning}
+
+\begin{frame}[fragile]
+  \frametitle{Forward Rules}
+
+  \begin{leancode}
+    theorem pos_of_min_pos_l : 0 < min n m → 0 < n
+  \end{leancode}
+
+  \begin{rapp}
+    \node {$Γ,\, n~m : ℕ,\, h : 0 < \mathrm{min}~n~m  ⊢ T$} % TODO array
+      child {node {$Γ,\, n : ℕ,\, h : 0 < \mathrm{min}~n~m,\, \orange{h' : 0 < n} ⊢ T$}};
+  \end{rapp}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Running Example}
+
+  \begin{leancode}
+    axiom R : ℕ → ℕ → Prop
+
+    @[aesop safe forward]
+    axiom trans : ∀ x y z, R x y → R y z → R x z
+
+    example
+        (h₁ : R 300 301)
+        (h₂ : R 301 302)
+        (h₃ : R 302 303) :
+        R 300 303 := by
+      aesop
+  \end{leancode}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Naive Algorithm}
+
+  \begin{enumerate}[<+->]
+    \item $R~y~z ≟ R~300~301 ⇒ \{y ↦ 300, z ↦ 301\}$ \good
+          \begin{enumerate}[<+->]
+            \item $R~x~y ≟ R~300~301 ⇒ \{x ↦ 300, y ↦ 301\}$ \bad
+            \item $R~x~y ≟ R~301~302 ⇒ \{x ↦ 301, y ↦ 302\}$ \bad
+            \item $R~x~y ≟ R~302~303 ⇒ \{x ↦ 302, y ↦ 303\}$ \bad
+          \end{enumerate}
+    \item $R~y~z ≟ R~301~302 ⇒ \{y ↦ 301, z ↦ 302\}$ \good
+          \begin{enumerate}[<+->]
+            \item $R~x~y ≟ R~300~301 ⇒ \{x ↦ 300, y ↦ 301\}$ \good \\
+                  \orange{new hypothesis:} $h_{4} : R~300~302$
+          \end{enumerate}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Naive Algorithm}
+
+  \begin{block}{New goal}
+    \begin{leancode}
+        (h₁ : R 300 301)
+        (h₂ : R 301 302)
+        (h₃ : R 302 303)
+        (h₄ : R 300 302) :
+        ⊢ R 300 303
+    \end{leancode}
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \begin{enumerate}[<+->]
+    \item $R~y~z ≟ R~300~301 ⇒ \{y ↦ 300, z ↦ 301\}$ \good
+          \begin{enumerate}[<+->]
+            \item $R~x~y ≟ R~300~301 ⇒ \{x ↦ 300, y ↦ 301\}$ \bad
+            \item \dots
+          \end{enumerate}
+    \item $R~y~z ≟ R~301~302 ⇒ \{y ↦ 301, z ↦ 302\}$ \good
+          \begin{enumerate}[<+->]
+            \item $R~x~y ≟ R~300~301 ⇒ \{x ↦ 300, y ↦ 301\}$ \orange{already exists}
+            \item $R~x~y ≟ R~301~302 ⇒ \{x ↦ 301, y ↦ 302\}$ \bad
+            \item \dots
+          \end{enumerate}
+    \item $R~y~z ≟ R~302~303 ⇒ \{y ↦ 302, z ↦ 303\}$ \good
+          \begin{enumerate}
+            \item \dots
+          \end{enumerate}
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Central Issue}
+
+  The naive algorithm is \orange{stateless}.
+
+  This leads to lots of \orange{duplicate work}.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Stateful Algorithm Interface}
+
+  \begin{leancode}
+    addHyp   : State → Hyp → State × List NewHyp
+    eraseHyp : State → Hyp → State
+  \end{leancode}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Rule Anatomy}
+
+  \[
+    \mathrm{trans} : ∀ x~y~z~(p₁ : R~x~y)~(p₂ : R~y~z),\, R~x~z
+  \]
+
+  $x, y, z$ are determined by a match for $p₁$ and $p₂$.
+
+  $p₁$ and $p₂$ are the \emph{slots} of $\mathrm{trans}$.
+
+  They are connected by the \emph{shared variable} $y$.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Matches}
+
+  \[
+    \mathrm{trans} : ∀ x~y~z~(p₁ : R~x~y)~(p₂ : R~y~z),\, R~x~z
+  \]
+
+  A \emph{complete match} for $\mathrm{trans}$ is a substitution
+  \[
+    \{1 ↦ t, 2 ↦ u\}
+  \]
+  such that $t : R~a~b$ (matching $p₁$) and $u : R~c~d$ (matching $p₂$) with $b = c$.
+
+  A \emph{partial match} is a substitution for some nonempty subset of the slots.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Core Algorithm Idea}
+
+  \emph{Iteratively fill the matches}: find a hypothesis for slot 1, then find a hypothesis for slot 2 that agrees on the shared variables, \dots
+
+  When a new hypothesis comes in, \emph{extend the matches} that agree with this hypothesis.
+
+  \emph{Store the partially filled matches} in the state.
+\end{frame}
+
+\begin{frame}
+  \frametitle{Rule State}
+
+  The \emph{rule state} for $\mathrm{trans}$ is a pair of maps
+  \begin{align*}
+    H &: \Slots × \Vars × \Expr → \Pow{\Hyps} \\
+    M &: \Slots × \Vars × \Expr → \Pow{\Matches}
+  \end{align*}
+  where
+  \begin{itemize}
+    \item \Slots{} is the set of slot indices of $\mathrm{trans}$ (here $\Slots = \{1,2\}$)
+    \item \Vars{} is the set of variables shared between the slots (here $\Vars = \{y\}$)
+    \item \Expr{} is the set of Lean terms
+    \item \Hyps{} is the set of hypotheses
+    \item \Matches{} is the set of partial matches for $\mathrm{trans}$
+  \end{itemize}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Hypothesis Map}
+
+  For a hypothesis $h$, slot $s$, variable $v$, expression $e$:
+
+  $h ∈ H(s, v, e)$ iff \\
+  the type of $h$ matches the type of slot $s$ \\
+  with variable $v$ instantiated by $e$.
+
+  \begin{example}
+    Given $h₁ : R~300~301$
+    \begin{align*}
+      h₁ &∈ H(1, y, 301) \\
+      h₁ &∈ H(2, y, 300) \\
+    \end{align*}
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Match Map}
+
+  For a hypothesis $h$, slot $s$, variable $v$, expression $e$:
+
+  $m ∈ M(s, v, e)$ iff \\
+  all slots $≤ s$ are assigned in $m$ \\
+  all slots $> s$ are unassigned in $m$ \\
+  with variable $v$ instantiated by $e$.
+
+  \begin{example}
+    Given $h₁ : R~300~301$, $m = \{1 ↦ h₁\}$
+    \begin{align*}
+      m &∈ M(1, y, 301) \\
+    \end{align*}
+  \end{example}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Adding a Hypothesis: Example}
+
+  $\mathrm{trans} : R~x~y → R~y~z → R~x~z$ \\
+  $h₂ : R~301~302$, $h₁ : R~300~301$, $h₃ : R~302~303$
+
+  \begin{tikzpicture}[outer sep=auto, level distance=10mm]
+    \node {$H$}
+      child {node[xshift=-.3cm] {1}
+        child[] {node {$y$}
+          child[visible on=<2->] {node[xshift=.3cm] {$302$}
+            child {node {$\{h₂\}$}}}
+          child[visible on=<5->] {node[xshift=-.3cm] {$301$}
+            child {node {$\{h₁\}$}}}}}
+      child {node[xshift=.3cm] {2}
+        child {node {$y$}
+          child[visible on=<4->] {node[xshift=.3cm] {$301$}
+            child {node {$\{h₂\}$}}}
+          child[visible on=<8->] {node[xshift=-.3cm] {$300$}
+            child {node {$\{h₁\}$}}}}};
+    \node[xshift=5.5cm] {$M$}
+      child {node[xshift=-.4cm] {1}
+        child {node {$y$}
+          child[visible on=<3->, xshift=-.3cm] {node {$302$}
+            child {node {$\{\{1 ↦ h₂\}\}$}}}
+          child[visible on=<6->, xshift=.3cm] {node {$301$}
+            child {node {$\{\{1 ↦ h₁\}\}$}}}}}
+      child {node[xshift=.4cm] {2}
+        child {node {$y$}
+          child[visible on=<7->] {node {$301$}
+            child {node[yshift=-2em] {$\{\{1 ↦ h₁, 2 ↦ h₂\}\}$}}}}};
+  \end{tikzpicture}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Adding a Hypothesis: Algorithm}
+
+  Given a new hypothesis $h : T$, \\
+  for each slot $s$ such that $T$ matches the type of $s$:
+  \begin{enumerate}
+    \item Add $h$ to $H(s, v, e)$ for each shared variable $v$.
+    \item Get the matches in slot $s-1$ that agree with $h$ on the shared
+          variables.
+          Extend these matches with $h$ and add them to $M(s, v, e)$ for each $v$.
+    \item For each extended match $m$, get the hypotheses in slot $s + 1$ that
+          agree with $m$. Extend the matches again and add them to $M$.
+    \item Repeat with slots $s + 2$, $s + 3$, \dots
+    \item If a match is completed, report it as a new hypothesis.
+  \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \centering{\Huge{\blue{Thanks!}}}
+  % TODO Links/QR codes for these slides, Aesop repo, my CV
 \end{frame}
 
 \end{document}
