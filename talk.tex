@@ -9,7 +9,7 @@
 \usepackage{minted}
 \usepackage{csquotes}
 \usepackage{tcolorbox}
-\usepackage{biblatex}
+\usepackage{biblatex} % TODO style w/o quotation marks
 
 \setmainfont{XITS}
 \setmathfont{XITS Math}
@@ -234,7 +234,68 @@
 
 \section{Search with Metavariables}
 
-% TODO
+\begin{frame}[fragile]
+  \frametitle{Metavariables}
+
+  \begin{leancode}
+    example {a b c d : Nat} (h₁ : a < b)
+        (h₂ : a < c) (h₃ : c < d) : a < d := by
+      apply Nat.lt_trans
+      -- ⊢ a < ?x
+      -- ⊢ ?x < d
+
+    example {a b c d : Nat} (h₁ : a < b)
+        (h₂ : a < c) (h₃ : c < d) : a < d := by
+      aesop (add 1% Nat.lt_trans)
+  \end{leancode}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Challenge: Dependencies Between Goals}
+
+  \begin{tcolorbox}
+    \centering
+    \begin{tikzpicture}[level distance=3em]
+      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
+        child {node[rectangle,draw,yshift=-0.7em] {\lean{apply (h₁ : a < b)}}
+          child {node {$\dots ⊢ b < d$}}};
+    \end{tikzpicture}
+  \end{tcolorbox}
+
+  \pause
+
+  \begin{tcolorbox}
+    \centering
+    \begin{tikzpicture}[level distance=3em]
+      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
+        child {node[rectangle,draw,yshift=-0.7em] {{\lean[escapeinside=||]{apply (h₂ : a < |\orange{c}|)}}}
+          child {node {$\dots ⊢ \orange{c} < d$}}};
+    \end{tikzpicture}
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Challenge: Dependencies Between Goals}
+
+  \begin{tcolorbox}
+    \centering
+    \begin{tikzpicture}[level distance=3em]
+      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
+        child {node[rectangle,draw,yshift=-0.7em] {\lean{apply (h₁ : a < b)}}
+          child {node {$\dots ⊢ b < d$}}};
+    \end{tikzpicture}
+  \end{tcolorbox}
+
+  \begin{block}{Solution}
+    When applying $h₁$ to goal $a < \mv{x}$, consider the resulting second goal $b < d$ a \emph{child} of the rule.
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Metavariable Paper}
+
+  \fullcite{aesop}
+\end{frame}
 
 \section{Proof Script Generation}
 
@@ -261,6 +322,80 @@
   \end{leancode}
 
   One click replaces \lean{aesop?} with the generated proof.
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Challenge: Dynamic Optimisation}
+
+  \begin{block}{Problem}
+    For a \lean{simp_all} call, we can \emph{usually, but not always} generate an equivalent \lean{simp_all only [...]} call.
+  \end{block}
+
+  \pause
+
+  \begin{block}{Solution}
+    Re-execute \lean{simp_all} and \lean{simp_all only [...]}; compare results.
+  \end{block}
+
+  \pause
+
+  \begin{block}{Problem}
+    Resulting goals are not equal on the nose.
+  \end{block}
+
+  \pause
+
+  \begin{block}{Solution}
+    A notion of goal equality that abstracts from implementation details.
+  \end{block}
+\end{frame}
+
+\begin{frame}[fragile]
+  \frametitle{Challenge: Reordering}
+
+  \begin{block}{Problem}
+    Aesop reports the executed tactics in whatever order they were executed.
+    E.g.:
+    \begin{leancode}
+      intro h
+      cases l
+      on_goal 2 => simp_all only [last]
+      simp_all only [last, ne_eq]
+      split
+    \end{leancode}
+  \end{block}
+
+  \pause
+
+  \begin{block}{Solution}
+    Reorder tactics to bring them into natural, depth-first order.
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Challenge: Reordering}
+
+  \begin{block}{Problem}
+    When goals contain metavariables, tactic order matters.
+  \end{block}
+
+  \pause
+
+  \begin{block}{Solution 1}
+    Don't reorder when metavariables are present.
+  \end{block}
+
+  \pause
+
+  \begin{block}{Solution 2}
+    Try to reorder and check whether the tactics still behave the same.
+  \end{block}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Proof Script Generation Paper}
+
+  \fullcite{script}
 \end{frame}
 
 \section{Applications and Shortcomings}
@@ -532,6 +667,12 @@
     \item Repeat with slots $s + 2$, $s + 3$, \dots
     \item If a match is completed, report it as a new hypothesis.
   \end{enumerate}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Benchmark}
+
+  % TODO
 \end{frame}
 
 \begin{frame}
