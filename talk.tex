@@ -101,58 +101,6 @@
   \maketitle
 \end{frame}
 
-\begin{frame}
-  \frametitle{Overview: Tree Search}
-
-  Aesop is a proof search tactic for Lean 4.
-
-  It is based on tree search, similar to Coq's and Isabelle's \texttt{auto}.
-
-  Proof rules are arbitrary user-specified tactics.
-
-  % TODO example
-\end{frame}
-
-\begin{frame}
-  \frametitle{Overview: Simplifier}
-
-  Aesop integrates Lean's simplifier as a built-in rule.
-
-  % TODO example
-\end{frame}
-
-\begin{frame}
-  \frametitle{Overview: Built-In Rules}
-
-  Aesop provides built-in rules for basic logical reasoning, case splitting, \dots
-
-  % TODO example
-\end{frame}
-
-\begin{frame}
-  \frametitle{Overview: Best-First Search with Metavariables}
-
-  Aesop supports best-first search with metavariables.
-
-  % TODO example
-\end{frame}
-
-\begin{frame}
-  \frametitle{Overview: Proof Script Generation}
-
-  Aesop can generate a tactic script for the proof it found.
-
-  % TODO example
-\end{frame}
-
-\begin{frame}
-  \frametitle{Overview: Forward Reasoning}
-
-  Aesop will soon have efficient forward rules.
-
-  % TODO example
-\end{frame}
-
 \AtBeginSection{
   \begin{frame}
     \usebeamercolor[fg]{frametitle}
@@ -247,9 +195,10 @@
     \item Integer penalty
     \item Treated as 100\% success probability
     \item May produce only one subgoal
-    \item Run in a fixpoint loop, i.e.\ until no normalisation rule succeeds any more
+    \item Run in a fixpoint loop until no normalisation rule succeeds any more
     \item \good{} Can establish invariants for other rules
     \item \bad{} Typically run multiple times on every goal
+    \item Simplifier used as a built-in normalisation rule
   \end{itemize}
 \end{frame}
 
@@ -263,8 +212,6 @@
     \end{rapp}
   \end{block}
 \end{frame}
-
-% Discuss normalisation loop here if there's time.
 
 \begin{frame}[fragile]
   \frametitle{Summary: Aesop's Search Algorithm}
@@ -289,7 +236,7 @@
   \end{center}
 \end{frame}
 
-\section{Built-In Rules}
+\section{Search with Metavariables}
 
 % TODO
 
@@ -320,7 +267,7 @@
   One click replaces \lean{aesop?} with the generated proof.
 \end{frame}
 
-\section{Applications, Shortcomings and Work In Progress}
+\section{Applications and Shortcomings}
 
 \begin{frame}
   \frametitle{Applications}
@@ -338,8 +285,9 @@
 
   \begin{itemize}[<+->]
     \item The built-in logical rules do not deal well with all-quantified hypotheses and sometimes negation
+    \item No support for equations beyond \lean{simp}
     \item The default rule set is currently missing many rules
-    \item Repeated calls to \lean{simp} during normalisation are bad for performance
+    \item Repeated calls to \lean{simp} during normalisation are inefficient
   \end{itemize}
 \end{frame}
 
