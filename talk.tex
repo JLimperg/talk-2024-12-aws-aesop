@@ -159,8 +159,7 @@
   \begin{itemize}[<+->]
     \item Run before unsafe rules
     \item If a safe rule succeeds on a goal $G$, no other rules are tried for $G$
-    \item Integer penalty
-    \item Treated as 100\% success probability
+    \item Treated as 100\% success probability, integer penalty
     \item \good{} Good for performance
     \item \bad{} Users need to make sure that the rule really is safe
   \end{itemize}
@@ -190,8 +189,7 @@
 
   \begin{itemize}[<+->]
     \item Run before safe rules
-    \item Integer penalty
-    \item Treated as 100\% success probability
+    \item Treated as 100\% success probability, integer penalty
     \item May produce only one subgoal
     \item Run in a fixpoint loop until no normalisation rule succeeds any more
     \item \good{} Can establish invariants for other rules
