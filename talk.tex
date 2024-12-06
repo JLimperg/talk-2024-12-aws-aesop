@@ -268,7 +268,7 @@
     \centering
     \begin{tikzpicture}[level distance=3em]
       \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
-        child {node[rectangle,draw,yshift=-0.7em] {{\lean[escapeinside=||]{apply (h₂ : a < |\orange{c}|)}}}
+        child {node[rectangle,draw,yshift=-0.7em] {{\lean[escapeinside=||]{apply (h₂ : a < |\orange{\texttt{c}}|)}}}
           child {node {$\dots ⊢ \orange{c} < d$}}};
     \end{tikzpicture}
   \end{tcolorbox}
@@ -354,8 +354,8 @@
   \frametitle{Challenge: Reordering}
 
   \begin{block}{Problem}
-    Aesop reports the executed tactics in whatever order they were executed.
-    E.g.:
+    Aesop reports the executed tactics in whatever order it tried them.
+
     \begin{leancode}
       intro h
       cases l
