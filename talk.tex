@@ -297,9 +297,9 @@
         \node {\dots}
           child {node[rectangle, draw] {\lean{apply Nat.lt_trans}}
             child {node[xshift=-.5cm] {$\dots ⊢ a < \mv{x}$}
-              child[visible on=<2->] {node[xshift=-1.3cm] {\lean{apply (h₁ : a < b)}}
+              child[visible on=<2->] {node[xshift=-1.3cm, rectangle, draw] {\lean{apply (h₁ : a < b)}}
                 child {node {$\dots ⊢ b < d$}}}
-              child[visible on=<3->] {node[xshift=1.3cm] {\lean{apply (h₂ : a < c)}}
+              child[visible on=<3->] {node[xshift=1.3cm, rectangle, draw] {\lean{apply (h₂ : a < c)}}
                 child {node {$\dots ⊢ c < d$}}}}
             child {node[xshift=.5cm] {$\dots ⊢ \mv{x} < d$}}};
       \end{tikzpicture}
