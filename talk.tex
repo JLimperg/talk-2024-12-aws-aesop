@@ -32,7 +32,7 @@
 
 \tcbset{frame empty}
 
-\setminted[lean4]{extrakeywords={aesop cases add aesop? intro simp simp_all only split apply}}
+\setminted[lean4]{extrakeywords={aesop cases add aesop? intro simp simp_all only split apply on_goal next rename_i}}
 \newmintinline[lean]{lean4}{bgcolor={},ignorelexererrors=true}
 \newminted[leancode]{lean4}{bgcolor={},ignorelexererrors=true,fontsize=\footnotesize,autogobble}
 \BeforeBeginEnvironment{leancode}{\begin{tcolorbox}}
@@ -238,92 +238,60 @@
   \frametitle{Proof Script Generation}
 
   \begin{leancode}
-    theorem last_cons {a : α} {l : List α} (h : l ≠ nil) :
-        last (a :: l) (cons_ne_nil a l) = last l h := by
-      aesop? (add 1% cases List)
+    theorem head?_append_of_ne_nil (l₁ l₂ : List α), l₁ ≠ [] →
+        head? (l₁ ++ l₂) = head? l₁ := by
+      aesop? (add norm simp head?)
   \end{leancode}
 
   \pause
 
-  \lean{aesop?} generates a proof script:\footfullcite{script}
+  \lean{aesop?} generates a proof script:
 
   \begin{leancode}
-    intro h
-    cases l with
-    | nil =>
-      simp_all only [last, ne_eq]
+    intro l₁ l₂ x
+    simp_all only [ne_eq, head?]
+    split
+    next x_1 heq ⇒
+      simp_all only [append_eq_nil, false_and]
+    next x_1 a as heq ⇒
       split
-    | cons head tail => simp_all only [last]
+      next x_2 ⇒
+        subst heq
+        simp_all only [not_true_eq_false]
+      next x_2 a_1 as_1 ⇒
+        simp_all only [reduceCtorEq, ...]
+        intro h
   \end{leancode}
-
-  One click replaces \lean{aesop?} with the generated proof.
 \end{frame}
 
 \begin{frame}[fragile]
-  \frametitle{Challenge: Dynamic Optimisation}
+  \frametitle{Challenge: Script Optimisation}
 
   \begin{block}{Problem}
-    For a \lean{simp_all} call, we can \emph{usually, but not always} generate an equivalent \lean{simp_all only [...]} call.
-  \end{block}
-
-  \pause
-
-  \begin{block}{Solution}
-    Re-execute \lean{simp_all} and \lean{simp_all only [...]}; compare results.
-  \end{block}
-
-  \pause
-
-  \begin{block}{Problem}
-    Resulting goals are not equal on the nose.
-  \end{block}
-
-  \pause
-
-  \begin{block}{Solution}
-    A notion of goal equality that abstracts from implementation details.
-  \end{block}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Challenge: Reordering}
-
-  \begin{block}{Problem}
-    Aesop reports the executed tactics in whatever order it tried them.
+    Simply printing the tactics executed by Aesop's rules produces an ugly proof.
 
     \begin{leancode}
-      intro h
-      cases l
-      on_goal 2 => simp_all only [last]
-      simp_all only [last, ne_eq]
+      intro l₁ l₂ x
+      simp_all
       split
+      rename_i x_1 heq
+      on_goal 2 => rename_i x_1 a as heq
+      simp_all
+      split
+      rename_i x_2
+      on_goal 2 => rename_i x_2 a_1 as_1
+      subst heq
+      simp_all
+      simp_all
     \end{leancode}
-  \end{block}
-
-  \pause
-
-  \begin{block}{Solution}
-    Reorder tactics to bring them into natural, depth-first order.
   \end{block}
 \end{frame}
 
 \begin{frame}
-  \frametitle{Challenge: Reordering}
+  \frametitle{Challenge: Script Optimisation}
 
-  \begin{block}{Problem}
-    When goals contain metavariables, tactic order matters.
-  \end{block}
-
-  \pause
-
-  \begin{block}{Solution 1}
-    Don't reorder when metavariables are present.
-  \end{block}
-
-  \pause
-
-  \begin{block}{Solution 2}
-    Try to reorder and check whether the tactics still behave the same.
+  \begin{block}{Solution}
+    An optimisation pipeline that makes the script more readable.\footfullcite{script}
   \end{block}
 \end{frame}
 
