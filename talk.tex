@@ -10,6 +10,8 @@
 \usepackage{csquotes}
 \usepackage{tcolorbox}
 \usepackage{biblatex} % TODO style w/o quotation marks
+\usepackage{siunitx}
+\usepackage{booktabs}
 
 \setmainfont{XITS}
 \setmathfont{XITS Math}
@@ -573,10 +575,36 @@
   \end{enumerate}
 \end{frame}
 
-\begin{frame}
-  \frametitle{Benchmark}
+\begin{frame}[fragile]
+  \frametitle{Benchmark Setup}
 
-  % TODO
+  \begin{leancode}
+    @[aesop safe forward]
+    axiom trans : ∀ x y z, R x y → R y z → R x z
+
+    example
+      (h₁ : R 300 301)
+      (h₂ : R 301 302)
+      ...
+      (hₙ : R (300 + n - 1) (300 + n)) :
+      True
+  \end{leancode}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Benchmark Results}
+
+  \medskip
+  \begin{center}
+    \begin{tabular}{rrr}
+      $n$ & \text{new} & \text{old} \\
+      \toprule
+      10  & \SI{55}{ms} & \SI{1}{m} \\
+      20  & \SI{210}{ms} & \SI{18}{m} \\
+      30  & \SI{470}{ms} & \text{?} \\
+      40  & \SI{860}{ms} & \text{?} \\
+    \end{tabular}
+  \end{center}
 \end{frame}
 
 \begin{frame}
