@@ -156,18 +156,6 @@
 \begin{frame}
   \frametitle{Safe Rules}
 
-  \begin{itemize}[<+->]
-    \item Run before unsafe rules
-    \item If a safe rule succeeds on a goal $G$, no other rules are tried for $G$
-    \item Treated as 100\% success probability, integer penalty
-    \item \good{} Good for performance
-    \item \bad{} Users need to make sure that the rule really is safe
-  \end{itemize}
-\end{frame}
-
-\begin{frame}[fragile]
-  \frametitle{Examples}
-
   \begin{block}{Safe rule: ∧-introduction}
     \begin{rapp}
       \node {$Γ ⊢ \orange{A ∧ B}$}
@@ -175,6 +163,8 @@
         child {node {$Γ ⊢ \orange{B}$}};
     \end{rapp}
   \end{block}
+
+  \pause
 
   \begin{block}{Unsafe rule: left ∨-introduction}
     \begin{rapp}
@@ -187,49 +177,16 @@
 \begin{frame}
   \frametitle{Normalisation Rules}
 
-  \begin{itemize}[<+->]
-    \item Run before safe rules
-    \item Treated as 100\% success probability, integer penalty
-    \item May produce only one subgoal
-    \item Run in a fixpoint loop until no normalisation rule succeeds any more
-    \item \good{} Can establish invariants for other rules
-    \item \bad{} Typically run multiple times on every goal
-    \item Simplifier used as a built-in normalisation rule
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Example}
-
   \begin{block}{∧-elimination}
     \begin{rapp}
       \node {$\orange{h : A ∧ B} ⊢ T$}
         child {node {$\orange{h₁ : A},\, \orange{h₂ : B} ⊢ T$}};
     \end{rapp}
   \end{block}
-\end{frame}
 
-\begin{frame}[fragile]
-  \frametitle{Summary: Aesop's Search Algorithm}
+  \pause
 
-  \begin{center}
-    \small
-    \begin{tikzpicture}[outer sep=auto, norm/.style={}, safe/.style={}, unsf/.style={}]
-      \path
-        (0,6)  node[norm]            (norm)        {\blue{Apply normalisation rules}}
-        (0,4)  node[safe]            (safe)        {\blue{Apply safe rules}}
-        (5,4)  node[safe]            (safe-done)   {add subgoals to tree}
-        (0,2)  node[unsf]            (unsafe)      {\blue{Apply unsafe rules}}
-        (-2,0) node[unsf]            (fail)        {can't prove this goal}
-        (4,0)  node[unsf,align=left] (unsafe-done) {add subgoals to tree \\ reinsert goal into goal queue};
-      \draw[<-,norm,loop right, min distance=20mm] (norm.{north east}) to node {progress} (norm.{south east});
-      \draw[->,safe] (norm) -- node[left,xshift=-5mm] {no progress} (safe);
-      \draw[->,safe] (safe) -- node[above] {progress} (safe-done);
-      \draw[->,unsf] (safe) -- node[left,xshift=-5mm] {no progress} (unsafe);
-      \draw[->,unsf] (unsafe) -- node[left,xshift=-5mm] {no progress} (fail);
-      \draw[->,unsf] (unsafe) -- node[right,xshift=5mm] {progress} (unsafe-done);
-    \end{tikzpicture}
-  \end{center}
+  An important normalisation rule is the \blue{simplifier}.
 \end{frame}
 
 \section{Proof Script Generation}
