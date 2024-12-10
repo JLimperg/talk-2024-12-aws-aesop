@@ -203,8 +203,8 @@
 
   \begin{block}{∧-elimination}
     \begin{rapp}
-      \node {$Γ,\, \orange{h : A ∧ B} ⊢ T$}
-        child {node {$Γ,\, \orange{h₁ : A},\, \orange{h₂ : B} ⊢ T$}};
+      \node {$\orange{h : A ∧ B} ⊢ T$}
+        child {node {$\orange{h₁ : A},\, \orange{h₂ : B} ⊢ T$}};
     \end{rapp}
   \end{block}
 \end{frame}
@@ -605,7 +605,7 @@
   \frametitle{Adding a Hypothesis: Example}
 
   $\mathrm{trans} : R~x~y → R~y~z → R~x~z$ \\
-  $h₂ : R~301~302$, $h₁ : R~300~301$, $h₃ : R~302~303$
+  $h₂ : R~301~302$, $h₁ : R~300~301$
 
   \begin{tikzpicture}[outer sep=auto, level distance=10mm]
     \node {$H$}
