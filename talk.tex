@@ -232,65 +232,6 @@
   \end{center}
 \end{frame}
 
-\section{Search with Metavariables}
-
-\begin{frame}[fragile]
-  \frametitle{Metavariables}
-
-  \begin{leancode}
-    example {a b c d : Nat} (h₁ : a < b)
-        (h₂ : a < c) (h₃ : c < d) : a < d := by
-      apply Nat.lt_trans
-      -- ⊢ a < ?x
-      -- ⊢ ?x < d
-
-    example {a b c d : Nat} (h₁ : a < b)
-        (h₂ : a < c) (h₃ : c < d) : a < d := by
-      aesop (add 1% Nat.lt_trans)
-  \end{leancode}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Challenge: Dependencies Between Goals}
-
-  \begin{tcolorbox}
-    \centering
-    \begin{tikzpicture}[level distance=3em]
-      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
-        child {node[rectangle,draw,yshift=-0.7em] {\lean{apply (h₁ : a < b)}}
-          child {node {$\dots ⊢ b < d$}}};
-    \end{tikzpicture}
-  \end{tcolorbox}
-
-  \pause
-
-  \begin{tcolorbox}
-    \centering
-    \begin{tikzpicture}[level distance=3em]
-      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
-        child {node[rectangle,draw,yshift=-0.7em] {{\lean[escapeinside=||]{apply (h₂ : a < |\orange{\texttt{c}}|)}}}
-          child {node {$\dots ⊢ \orange{c} < d$}}};
-    \end{tikzpicture}
-  \end{tcolorbox}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Challenge: Dependencies Between Goals}
-
-  \begin{tcolorbox}
-    \centering
-    \begin{tikzpicture}[level distance=3em]
-      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
-        child {node[rectangle,draw,yshift=-0.7em] {\lean{apply (h₁ : a < b)}}
-          child {node {$\dots ⊢ b < d$}}};
-    \end{tikzpicture}
-  \end{tcolorbox}
-
-  \begin{block}{Solution}
-    When applying $h₁$ to goal $a < \mv{x}$, consider the resulting second goal $b < d$ a \emph{child} of the rule.\footfullcite{aesop}
-  \end{block}
-\end{frame}
-
 \section{Proof Script Generation}
 
 \begin{frame}[fragile]
@@ -385,6 +326,66 @@
     Try to reorder and check whether the tactics still behave the same.
   \end{block}
 \end{frame}
+
+\section{Search with Metavariables}
+
+\begin{frame}[fragile]
+  \frametitle{Metavariables}
+
+  \begin{leancode}
+    example {a b c d : Nat} (h₁ : a < b)
+        (h₂ : a < c) (h₃ : c < d) : a < d := by
+      apply Nat.lt_trans
+      -- ⊢ a < ?x
+      -- ⊢ ?x < d
+
+    example {a b c d : Nat} (h₁ : a < b)
+        (h₂ : a < c) (h₃ : c < d) : a < d := by
+      aesop (add 1% Nat.lt_trans)
+  \end{leancode}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Challenge: Dependencies Between Goals}
+
+  \begin{tcolorbox}
+    \centering
+    \begin{tikzpicture}[level distance=3em]
+      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
+        child {node[rectangle,draw,yshift=-0.7em] {\lean{apply (h₁ : a < b)}}
+          child {node {$\dots ⊢ b < d$}}};
+    \end{tikzpicture}
+  \end{tcolorbox}
+
+  \pause
+
+  \begin{tcolorbox}
+    \centering
+    \begin{tikzpicture}[level distance=3em]
+      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
+        child {node[rectangle,draw,yshift=-0.7em] {{\lean[escapeinside=||]{apply (h₂ : a < |\orange{\texttt{c}}|)}}}
+          child {node {$\dots ⊢ \orange{c} < d$}}};
+    \end{tikzpicture}
+  \end{tcolorbox}
+\end{frame}
+
+\begin{frame}
+  \frametitle{Challenge: Dependencies Between Goals}
+
+  \begin{tcolorbox}
+    \centering
+    \begin{tikzpicture}[level distance=3em]
+      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
+        child {node[rectangle,draw,yshift=-0.7em] {\lean{apply (h₁ : a < b)}}
+          child {node {$\dots ⊢ b < d$}}};
+    \end{tikzpicture}
+  \end{tcolorbox}
+
+  \begin{block}{Solution}
+    When applying $h₁$ to goal $a < \mv{x}$, consider the resulting second goal $b < d$ a \emph{child} of the rule.\footfullcite{aesop}
+  \end{block}
+\end{frame}
+
 
 \section{Applications}
 
