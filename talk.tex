@@ -316,41 +316,37 @@
 \begin{frame}
   \frametitle{Challenge: Dependencies Between Goals}
 
-  \begin{tcolorbox}
-    \centering
-    \begin{tikzpicture}[level distance=3em]
-      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
-        child {node[rectangle,draw,yshift=-0.7em] {\lean{apply (h₁ : a < b)}}
-          child {node {$\dots ⊢ b < d$}}};
-    \end{tikzpicture}
-  \end{tcolorbox}
-
-  \pause
-
-  \begin{tcolorbox}
-    \centering
-    \begin{tikzpicture}[level distance=3em]
-      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
-        child {node[rectangle,draw,yshift=-0.7em] {{\lean[escapeinside=||]{apply (h₂ : a < |\orange{\texttt{c}}|)}}}
-          child {node {$\dots ⊢ \orange{c} < d$}}};
-    \end{tikzpicture}
-  \end{tcolorbox}
+  \begin{block}{Problem}
+    \begin{tcolorbox}
+      \centering
+      \begin{tikzpicture}[level distance=3em]
+        \node {\dots}
+          child {node[rectangle, draw] {\lean{apply Nat.lt_trans}}
+            child {node[xshift=-.5cm] {$\dots ⊢ a < \mv{x}$}
+              child[visible on=<2->] {node[rectangle,draw,yshift=-0.7em] {\alt<3->{\lean[escapeinside=||]{apply (|\blue{\texttt{h₂}}| : a < |\blue{\texttt{c}}|)}}{\lean[escapeinside=||]{apply (h₁ : a < |\orange{\texttt{b}}|)}}}}}
+            child {node[xshift=.5cm] {$\dots ⊢ \alt<2->{\alt<3->{\blue{c}}{\orange{b}}}{\mv{x}} < d$}}};
+      \end{tikzpicture}
+    \end{tcolorbox}
+  \end{block}
 \end{frame}
 
 \begin{frame}
   \frametitle{Challenge: Dependencies Between Goals}
 
-  \begin{tcolorbox}
-    \centering
-    \begin{tikzpicture}[level distance=3em]
-      \node {$\begin{array}{l} \dots ⊢ a < \mv{x} \\ \dots ⊢ \mv{x} < d \end{array}$}
-        child {node[rectangle,draw,yshift=-0.7em] {\lean{apply (h₁ : a < b)}}
-          child {node {$\dots ⊢ b < d$}}};
-    \end{tikzpicture}
-  \end{tcolorbox}
-
-  \begin{block}{Solution}
-    When applying $h₁$ to goal $a < \mv{x}$, consider the resulting second goal $b < d$ a \emph{child} of the rule.\footfullcite{aesop}
+  \begin{block}{Solution\footfullcite{aesop}}
+    \begin{tcolorbox}
+      \centering
+      \begin{tikzpicture}[level distance=3em]
+        \node {\dots}
+          child {node[rectangle, draw] {\lean{apply Nat.lt_trans}}
+            child {node[xshift=-.5cm] {$\dots ⊢ a < \mv{x}$}
+              child[visible on=<2->] {node[xshift=-1.3cm] {\lean{apply (h₁ : a < b)}}
+                child {node {$\dots ⊢ b < d$}}}
+              child[visible on=<3->] {node[xshift=1.3cm] {\lean{apply (h₂ : a < c)}}
+                child {node {$\dots ⊢ c < d$}}}}
+            child {node[xshift=.5cm] {$\dots ⊢ \mv{x} < d$}}};
+      \end{tikzpicture}
+    \end{tcolorbox}
   \end{block}
 \end{frame}
 
