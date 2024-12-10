@@ -386,7 +386,7 @@
   \end{block}
 \end{frame}
 
-\section{Applications and Shortcomings}
+\section{Applications}
 
 \begin{frame}
   \frametitle{Applications}
@@ -396,17 +396,6 @@
     \item Domain-specific solvers: \lean{continuity}, \lean{measurability}, \lean{aesop_cat}, \dots
     \item Tree search backend for LLMs\footfullcite{song2023}\footfullcite{abel}
     \item Domain-specific \enquote*{goal preprocessors} with \lean{aesop?}
-  \end{itemize}
-\end{frame}
-
-\begin{frame}
-  \frametitle{Shortcomings}
-
-  \begin{itemize}[<+->]
-    \item Built-in logical rules do not deal well with all-quantified hypotheses and sometimes negation
-    \item No support for equations beyond \lean{simp}
-    \item Default rule set is missing many rules
-    \item Repeated calls to \lean{simp} during normalisation are inefficient
   \end{itemize}
 \end{frame}
 
