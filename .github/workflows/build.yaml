@@ -23,4 +23,4 @@ jobs:
       with:
         tag: ${{steps.get_version.outputs.version}}
         commit: ${{github.ref}}
-        artifacts: "lecture-slides/writing/build/writing.pdf,lecture-slides/writing/build/writing-handout.pdf,lecture-slides/sabel-formatting-de.pdf,lecture-slides/sabel-formatting-en.pdf"
+        artifacts: "build/talk.pdf,build/talk-handout.pdf"
